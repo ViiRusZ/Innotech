@@ -33,7 +33,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
                 WHERE id = :id
                 RETURNING *;
             """)
-    Task updateTaskById(@Param("id") Long id,
+    Optional<Task> updateTaskById(@Param("id") Long id,
                         @Param("title") String title,
                         @Param("description") String description,
                         @Param("user_id") Long userId);

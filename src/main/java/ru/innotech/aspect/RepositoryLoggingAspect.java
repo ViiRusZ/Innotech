@@ -14,10 +14,16 @@ public class RepositoryLoggingAspect {
     @Around("@within(org.springframework.stereotype.Repository)")
     public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
         long start = System.currentTimeMillis();
-        Object result = joinPoint.proceed();
-        long end = System.currentTimeMillis();
-        log.info("Around: Repository: {}, Method: {} execution time: {} ms", joinPoint.getSignature().getDeclaringTypeName(),
-                joinPoint.getSignature().getName(), end - start);
-        return result;
+        try {
+            Object result = joinPoint.proceed();
+            long end = System.currentTimeMillis();
+            log.info("Around: Repository: {}, Method: {} execution time: {} ms", joinPoint.getSignature().getDeclaringTypeName(),
+                    joinPoint.getSignature().getName(), end - start);
+            return result;
+        } catch (Exception ex) {
+            log.error("Exception in method: {}",
+                    joinPoint.getSignature().getName(), ex);
+            throw ex;
+        }
     }
 }

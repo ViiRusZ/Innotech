@@ -4,29 +4,32 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.stream.Collectors;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({TaskNotFoundException.class,
-            EntityNotFoundException.class,
-            IllegalArgumentException.class})
-    public ResponseEntity<String> handleTaskNotFound(Exception ex) {
-        if (ex instanceof EntityNotFoundException) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-        }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleIllegalArgumentException(IllegalArgumentException ex) {
+        return ex.getMessage();
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<String> handleConstraintViolationException(ConstraintViolationException ex) {
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleConstraintViolationException(ConstraintViolationException ex) {
         String message = ex.getConstraintViolations().stream()
                 .map(ConstraintViolation::getMessage).collect(Collectors.joining(", "));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid input: ID " + message);
+        return "Invalid input: ID " + message;
+    }
+
+    @ExceptionHandler({EntityNotFoundException.class, TaskNotFoundException.class})
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String handleEntityNotFound(Exception ex) {
+        return ex.getMessage();
     }
 }

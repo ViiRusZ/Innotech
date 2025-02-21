@@ -143,7 +143,7 @@ class TaskServiceTest {
 
         Task updatedTask = new Task(TASK_ID, "Вторая задача", "Тут вторая задача", 2L);
 
-        when(taskRepository.updateTaskById(TASK_ID, updateTaskDto.getTitle(), updateTaskDto.getDescription(), updateTaskDto.getUserId())).thenReturn(updatedTask);
+        when(taskRepository.updateTaskById(TASK_ID, updateTaskDto.getTitle(), updateTaskDto.getDescription(), updateTaskDto.getUserId())).thenReturn(Optional.of(updatedTask));
         when(taskMapper.toTaskResponseDto(updatedTask)).thenReturn(expectedTaskResponseDto);
 
         TaskResponseDto result = taskService.updateTask(updateTaskDto, TASK_ID);
@@ -159,7 +159,7 @@ class TaskServiceTest {
         String messageException = "Task with id: " + TASK_ID + " not found";
         UpdateDto updateTaskDto = createTaskUpdateDto();
 
-        when(taskRepository.updateTaskById(TASK_ID, updateTaskDto.getTitle(), updateTaskDto.getDescription(), updateTaskDto.getUserId())).thenReturn(null);
+        when(taskRepository.updateTaskById(TASK_ID, updateTaskDto.getTitle(), updateTaskDto.getDescription(), updateTaskDto.getUserId())).thenReturn(Optional.empty());
 
         Exception ex = assertThrows(TaskNotFoundException.class, () -> taskService.updateTask(updateTaskDto, TASK_ID));
 

@@ -19,6 +19,8 @@ import ru.innotech.exception.TaskNotFoundException;
 import ru.innotech.mapper.TaskMapper;
 import ru.innotech.repository.TaskRepository;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -58,13 +60,13 @@ public class TaskService {
     @AspectAfterReturning
     public TaskResponseDto updateTask(UpdateDto updateDto, Long id) {
 
-        Task taskUpdated = taskRepository.updateTaskById(id, updateDto.getTitle(),
+        Optional<Task> taskUpdated = taskRepository.updateTaskById(id, updateDto.getTitle(),
                 updateDto.getDescription(),
                 updateDto.getUserId());
-        if (taskUpdated == null) {
+        if (taskUpdated.isEmpty()) {
             throw new TaskNotFoundException(id);
         }
-        return taskMapper.toTaskResponseDto(taskUpdated);
+        return taskMapper.toTaskResponseDto(taskUpdated.get());
     }
 
     @LoggingAspectBeforeMethod
