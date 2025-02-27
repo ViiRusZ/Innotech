@@ -35,6 +35,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
+	implementation ("org.springframework.boot:spring-boot-starter-mail")
 
 	/**
 	 * DataBase
@@ -51,6 +52,11 @@ dependencies {
 	implementation("org.projectlombok:lombok")
 	implementation("org.mapstruct:mapstruct:1.5.3.Final")
 
+	implementation("org.springframework.kafka:spring-kafka")
+
+	implementation("org.springframework.retry:spring-retry:2.0.11")
+
+
 	/**
 	 * Tests
 	 */
@@ -59,6 +65,8 @@ dependencies {
 
 	testImplementation("org.mockito:mockito-core:5.1.0")
 	testImplementation("org.mockito:mockito-junit-jupiter:5.1.0")
+
+	testImplementation("org.springframework.kafka:spring-kafka-test")
 }
 
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {

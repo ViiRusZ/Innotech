@@ -29,12 +29,14 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
                 UPDATE task
                 SET title = COALESCE(:title, task.title),
                     description = COALESCE(:description, task.description),
-                    user_id = COALESCE(:user_id, task.user_id)
+                    user_id = COALESCE(:user_id, task.user_id),
+                    status = COALESCE(:status, task.status)
                 WHERE id = :id
                 RETURNING *;
             """)
     Optional<Task> updateTaskById(@Param("id") Long id,
-                        @Param("title") String title,
-                        @Param("description") String description,
-                        @Param("user_id") Long userId);
+                                  @Param("title") String title,
+                                  @Param("description") String description,
+                                  @Param("user_id") Long userId,
+                                  @Param("status") String status);
 }

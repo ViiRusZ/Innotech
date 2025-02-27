@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
+import ru.innotech.entity.TaskStatus;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,6 +22,9 @@ public class TaskDto {
     private String description;
 
     @Positive(message = "user_id must start from 1")
-    @NotNull
+    @NotNull(message = "userId can`t be null")
     private Long userId;
+
+    @NotNull(message = "status can`t be null")
+    private TaskStatus status;
 }

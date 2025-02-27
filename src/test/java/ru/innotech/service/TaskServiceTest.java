@@ -10,11 +10,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import ru.innotech.dto.KafkaDto;
 import ru.innotech.dto.TaskDto;
 import ru.innotech.dto.TaskResponseDto;
 import ru.innotech.dto.UpdateDto;
 import ru.innotech.entity.Task;
+import ru.innotech.entity.TaskStatus;
 import ru.innotech.exception.TaskNotFoundException;
+import ru.innotech.kafka.KafkaClientProducer;
 import ru.innotech.mapper.TaskMapper;
 import ru.innotech.repository.TaskRepository;
 
@@ -27,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -43,6 +47,9 @@ class TaskServiceTest {
 
     @Mock
     TaskRepository taskRepository;
+
+    @Mock
+    KafkaClientProducer kafkaClientProducer;
 
     @InjectMocks
     TaskService taskService;
@@ -135,20 +142,25 @@ class TaskServiceTest {
     void positiveUpdateTask() {
         UpdateDto updateTaskDto = createTaskUpdateDto();
 
+        KafkaDto forKafka = new KafkaDto(1L, TaskStatus.NEW);
+
         TaskResponseDto expectedTaskResponseDto = TaskResponseDto.builder().id(TASK_ID)
                 .title("Вторая задача")
                 .description("Тут вторая задача")
                 .userId(2L)
+                .status(TaskStatus.NEW)
                 .build();
 
-        Task updatedTask = new Task(TASK_ID, "Вторая задача", "Тут вторая задача", 2L);
+        Task updatedTask = new Task(TASK_ID, "Вторая задача", "Тут вторая задача", 2L, TaskStatus.NEW);
 
-        when(taskRepository.updateTaskById(TASK_ID, updateTaskDto.getTitle(), updateTaskDto.getDescription(), updateTaskDto.getUserId())).thenReturn(Optional.of(updatedTask));
+        when(taskRepository.updateTaskById(TASK_ID, updateTaskDto.getTitle(), updateTaskDto.getDescription(), updateTaskDto.getUserId(), updateTaskDto.getTaskStatus().toString())).thenReturn(Optional.of(updatedTask));
+        when(taskMapper.toKafkaDto(updatedTask)).thenReturn(forKafka);
+        doNothing().when(kafkaClientProducer).send(forKafka);
         when(taskMapper.toTaskResponseDto(updatedTask)).thenReturn(expectedTaskResponseDto);
 
         TaskResponseDto result = taskService.updateTask(updateTaskDto, TASK_ID);
 
-        verify(taskRepository, times(1)).updateTaskById(TASK_ID, updateTaskDto.getTitle(), updateTaskDto.getDescription(), updateTaskDto.getUserId());
+        verify(taskRepository, times(1)).updateTaskById(TASK_ID, updateTaskDto.getTitle(), updateTaskDto.getDescription(), updateTaskDto.getUserId(), updateTaskDto.getTaskStatus().toString());
         verify(taskMapper, times(1)).toTaskResponseDto(updatedTask);
 
         assertEquals(result, expectedTaskResponseDto);
@@ -159,19 +171,19 @@ class TaskServiceTest {
         String messageException = "Task with id: " + TASK_ID + " not found";
         UpdateDto updateTaskDto = createTaskUpdateDto();
 
-        when(taskRepository.updateTaskById(TASK_ID, updateTaskDto.getTitle(), updateTaskDto.getDescription(), updateTaskDto.getUserId())).thenReturn(Optional.empty());
+        when(taskRepository.updateTaskById(TASK_ID, updateTaskDto.getTitle(), updateTaskDto.getDescription(), updateTaskDto.getUserId(), updateTaskDto.getTaskStatus().toString())).thenReturn(Optional.empty());
 
         Exception ex = assertThrows(TaskNotFoundException.class, () -> taskService.updateTask(updateTaskDto, TASK_ID));
 
-        verify(taskRepository, times(1)).updateTaskById(TASK_ID, updateTaskDto.getTitle(), updateTaskDto.getDescription(), updateTaskDto.getUserId());
+        verify(taskRepository, times(1)).updateTaskById(TASK_ID, updateTaskDto.getTitle(), updateTaskDto.getDescription(), updateTaskDto.getUserId(), updateTaskDto.getTaskStatus().toString());
 
         assertEquals(messageException, ex.getMessage());
     }
 
     @Test
     void positiveGetAllTasks() {
-        Task task1 = new Task(1L, "Задача 1", "Описание 1", 1L);
-        Task task2 = new Task(2L, "Задача 2", "Описание 2", 1L);
+        Task task1 = new Task(1L, "Задача 1", "Описание 1", 1L, TaskStatus.NEW);
+        Task task2 = new Task(2L, "Задача 2", "Описание 2", 1L, TaskStatus.NEW);
         List<Task> tasks = Arrays.asList(task1, task2);
         Page<Task> page = new PageImpl<>(tasks, PageRequest.of(PAGE_NUMBER, PAGE_SIZE), tasks.size());
 
@@ -209,15 +221,15 @@ class TaskServiceTest {
     }
 
     private UpdateDto createTaskUpdateDto() {
-        return UpdateDto.builder().title("Вторая задача").description("Тут вторая задача").userId(2L).build();
+        return UpdateDto.builder().title("Вторая задача").description("Тут вторая задача").userId(2L).taskStatus(TaskStatus.NEW).build();
     }
 
     private TaskResponseDto newTaskResponseDto() {
-        return TaskResponseDto.builder().title("Первая задача").description("Первая задача для тестов").userId(1L).build();
+        return TaskResponseDto.builder().title("Первая задача").description("Первая задача для тестов").userId(1L).status(TaskStatus.NEW).build();
     }
 
     private Task newTaskEntity() {
-        return new Task(TASK_ID, "Первая задача", "Первая задача для тестов", 1L);
+        return new Task(TASK_ID, "Первая задача", "Первая задача для тестов", 1L, TaskStatus.NEW);
     }
 
 }
