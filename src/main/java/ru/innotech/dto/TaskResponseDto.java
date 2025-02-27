@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.innotech.entity.TaskStatus;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,4 +18,6 @@ public class TaskResponseDto {
     private String description;
 
     private Long userId;
+
+    private TaskStatus status;
 }

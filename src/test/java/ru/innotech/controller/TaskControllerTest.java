@@ -17,6 +17,7 @@ import ru.innotech.dto.TaskDto;
 import ru.innotech.dto.TaskResponseDto;
 import ru.innotech.dto.UpdateDto;
 import ru.innotech.entity.Task;
+import ru.innotech.entity.TaskStatus;
 import ru.innotech.service.TaskService;
 
 import java.util.Arrays;
@@ -54,6 +55,7 @@ class TaskControllerTest {
                 .title("Task 1")
                 .description("Here task 1")
                 .userId(1L)
+                .status(TaskStatus.NEW)
                 .build();
 
         TaskResponseDto expectedResponseDto = TaskResponseDto.builder()
@@ -61,6 +63,7 @@ class TaskControllerTest {
                 .title("Task 1")
                 .description("Here task 1")
                 .userId(1L)
+                .status(TaskStatus.NEW)
                 .build();
 
         when(taskService.createNewTask(taskDto)).thenReturn(expectedResponseDto);
@@ -115,6 +118,7 @@ class TaskControllerTest {
                 .title("Task 1")
                 .description("Here task 1")
                 .userId(1L)
+                .taskStatus(TaskStatus.NEW)
                 .build();
 
         TaskResponseDto expectedResponseDto = TaskResponseDto.builder()
@@ -122,6 +126,7 @@ class TaskControllerTest {
                 .title("Task 2")
                 .description("Here task 2")
                 .userId(2L)
+                .status(TaskStatus.NEW)
                 .build();
 
         when(taskService.updateTask(updateDto, 1L)).thenReturn(expectedResponseDto);
@@ -146,8 +151,8 @@ class TaskControllerTest {
     @Test
     void getTasks() throws Exception {
         List<Task> taskList = Arrays.asList(
-                new Task(1L, "Task 1", "Description 1", 1L),
-                new Task(2L, "Task 2", "Description 2", 1L)
+                new Task(1L, "Task 1", "Description 1", 1L, TaskStatus.NEW),
+                new Task(2L, "Task 2", "Description 2", 1L, TaskStatus.NEW)
         );
 
         Page<Task> page = new PageImpl<>(taskList);
