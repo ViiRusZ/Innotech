@@ -19,3 +19,30 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     enabled: true
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username:
+    password:
+    default-encoding: UTF-8
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+    sender:
+      mailTo:
+      subjectForEmail: "Изменен статус задачи"
+
+kafka:
+  bootstrap-servers: kafka:9092
+  producer:
+    enable: true
+  consumer:
+    group-id: email-consumer-group
+    max-poll-records: 20
+    max-partition-fetch-bytes: 1048576
+  topic: email_client_sender
+  listener:
+    poll-timeout: 2000
+

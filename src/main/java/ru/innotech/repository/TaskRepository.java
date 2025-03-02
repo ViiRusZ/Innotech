@@ -22,19 +22,21 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     Page<Task> findAllTasks(Pageable pageable);
 
     @Modifying
-    @Query(nativeQuery = true, value = "DELETE FROM task WHERE id = :id")
+    @Query(nativeQuery = true, value = "DELETE FROM tasks WHERE id = :id")
     int deleteTaskById(@Param("id") Long taskId);
 
     @Query(nativeQuery = true, value = """
-                UPDATE task
-                SET title = COALESCE(:title, task.title),
-                    description = COALESCE(:description, task.description),
-                    user_id = COALESCE(:user_id, task.user_id)
+                UPDATE tasks
+                SET title = COALESCE(:title, tasks.title),
+                    description = COALESCE(:description, tasks.description),
+                    user_id = COALESCE(:user_id, tasks.user_id),
+                    status = COALESCE(:status, tasks.status)
                 WHERE id = :id
                 RETURNING *;
             """)
     Optional<Task> updateTaskById(@Param("id") Long id,
-                        @Param("title") String title,
-                        @Param("description") String description,
-                        @Param("user_id") Long userId);
+                                  @Param("title") String title,
+                                  @Param("description") String description,
+                                  @Param("user_id") Long userId,
+                                  @Param("status") String status);
 }
