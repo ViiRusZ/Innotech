@@ -142,7 +142,7 @@ class TaskServiceTest {
     void positiveUpdateTask() {
         UpdateDto updateTaskDto = createTaskUpdateDto();
 
-        KafkaDto forKafka = new KafkaDto(1L, TaskStatus.NEW);
+        KafkaDto forKafka = new KafkaDto("new", "новая задача", 1L, TaskStatus.NEW);
 
         TaskResponseDto expectedTaskResponseDto = TaskResponseDto.builder().id(TASK_ID)
                 .title("Вторая задача")
@@ -168,12 +168,12 @@ class TaskServiceTest {
 
     @Test
     void negativeUpdateTask() {
-        String messageException = "Task with id: " + TASK_ID + " not found";
+        String messageException = "Task not found with ID:1";
         UpdateDto updateTaskDto = createTaskUpdateDto();
 
         when(taskRepository.updateTaskById(TASK_ID, updateTaskDto.getTitle(), updateTaskDto.getDescription(), updateTaskDto.getUserId(), updateTaskDto.getTaskStatus().toString())).thenReturn(Optional.empty());
 
-        Exception ex = assertThrows(TaskNotFoundException.class, () -> taskService.updateTask(updateTaskDto, TASK_ID));
+        Exception ex = assertThrows(EntityNotFoundException.class, () -> taskService.updateTask(updateTaskDto, TASK_ID));
 
         verify(taskRepository, times(1)).updateTaskById(TASK_ID, updateTaskDto.getTitle(), updateTaskDto.getDescription(), updateTaskDto.getUserId(), updateTaskDto.getTaskStatus().toString());
 

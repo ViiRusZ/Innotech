@@ -21,8 +21,6 @@ import ru.innotech.kafka.KafkaClientProducer;
 import ru.innotech.mapper.TaskMapper;
 import ru.innotech.repository.TaskRepository;
 
-import java.util.Optional;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -60,19 +58,16 @@ public class TaskService {
     @Transactional
     @AspectAfterReturning
     public TaskResponseDto updateTask(UpdateDto updateDto, Long id) {
-        Optional<Task> taskUpdated = taskRepository.updateTaskById(id, updateDto.getTitle(),
+        Task taskUpdated = taskRepository.updateTaskById(id, updateDto.getTitle(),
                 updateDto.getDescription(),
                 updateDto.getUserId(),
-                updateDto.getTaskStatus().toString());
+                updateDto.getTaskStatus().toString()).orElseThrow(() ->
+                new EntityNotFoundException(String.format("Task not found with ID:%d", id)));
 
-        if (taskUpdated.isEmpty()) {
-            throw new TaskNotFoundException(id);
-        }
-
-        KafkaDto forKafka = taskMapper.toKafkaDto(taskUpdated.get());
+        KafkaDto forKafka = taskMapper.toKafkaDto(taskUpdated);
         kafkaClientProducer.send(forKafka);
 
-        return taskMapper.toTaskResponseDto(taskUpdated.get());
+        return taskMapper.toTaskResponseDto(taskUpdated);
     }
 
     @LoggingAspectBeforeMethod

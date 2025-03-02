@@ -23,40 +23,40 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handleIllegalArgumentException(IllegalArgumentException ex) {
-        return ex.getMessage();
+    public ErrorResponse handleIllegalArgumentException(IllegalArgumentException ex) {
+        return new ErrorResponse(ex.getMessage());
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handleConstraintViolationException(ConstraintViolationException ex) {
+    public ErrorResponse handleConstraintViolationException(ConstraintViolationException ex) {
         String message = ex.getConstraintViolations().stream()
                 .map(ConstraintViolation::getMessage).collect(Collectors.joining(", "));
-        return "Invalid input: ID " + message;
+        return new ErrorResponse("Invalid input: ID " + message);
     }
 
     @ExceptionHandler({EntityNotFoundException.class, TaskNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String handleEntityNotFound(Exception ex) {
-        return ex.getMessage();
+    public ErrorResponse handleEntityNotFound(Exception ex) {
+        return new ErrorResponse(ex.getMessage());
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+    public ErrorResponse handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         log.error("Error occurred while reading the message: ", ex);
-        return "Invalid input. Valid values are: " +
-                String.join(", ", Arrays.stream(TaskStatus.values())
-                        .map(Enum::name)
-                        .toList());
+        String validValues = String.join(", ", Arrays.stream(TaskStatus.values())
+                .map(Enum::name)
+                .toList());
+        return new ErrorResponse("Invalid input. Valid values are: " + validValues);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+    public ErrorResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         List<String> errorMessages = ex.getBindingResult().getFieldErrors().stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .toList();
-        return "Validation failed: " + String.join(", ", errorMessages);
+        return new ErrorResponse("Validation failed: " + String.join(", ", errorMessages));
     }
 }

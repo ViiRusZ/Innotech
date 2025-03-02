@@ -12,14 +12,12 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
-import org.springframework.stereotype.Component;
 import ru.innotech.dto.KafkaDto;
 import ru.innotech.kafka.KafkaClientProducer;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
 @Configuration
 @EnableKafka
 public class KafkaProducerConfiguration {

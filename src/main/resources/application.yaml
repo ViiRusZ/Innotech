@@ -29,8 +29,10 @@ spring:
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
-    mailTo:
-    subjectForEmail:
+
+    sender:
+      mailTo:
+      subjectForEmail: "Изменен статус задачи"
 
 kafka:
   bootstrap-servers: kafka:9092

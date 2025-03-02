@@ -11,13 +11,11 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
-import org.springframework.stereotype.Component;
 import ru.innotech.dto.KafkaDto;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
 @Configuration
 @EnableKafka
 public class KafkaConsumerConfiguration {
@@ -52,7 +50,7 @@ public class KafkaConsumerConfiguration {
         ConcurrentKafkaListenerContainerFactory<String, KafkaDto> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerListenerFactory());
-        factory.setConcurrency(1);
+        factory.setConcurrency(2);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
         return factory;
     }
